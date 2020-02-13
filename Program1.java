@@ -4,18 +4,16 @@
  */
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Your solution goes in this class.
- * 
+ *
  * Please do not modify the other files we have provided for you, as we will use
  * our own versions of those files when grading your project. You are
  * responsible for ensuring that your solution works with the original version
  * of all the other files we have provided for you.
- * 
+ *
  * That said, please feel free to add additional files and classes to your
  * solution, as you see fit. We will use ALL of your additional files when
  * grading your solution.
@@ -25,6 +23,35 @@ public class Program1 extends AbstractProgram1 {
      * Determines whether a candidate Matching represents a solution to the Stable Marriage problem.
      * Study the description of a Matching in the project documentation to help you with this.
      */
+
+    public int[][] locationPrefArray(Matching marriage)
+    {
+        int[][] ret = new int[marriage.getLocationCount()][marriage.getEmployeeCount()];
+
+        for(int i=0; i<marriage.getLocationCount(); i++)
+        {
+            for(int j=0; j<marriage.getEmployeeCount(); j++)
+            {
+                ret[i][marriage.getLocationPreference().get(i).get(j)] = j;
+            }
+        }
+        return ret;
+    }
+
+    public int[][] employeePrefArray(Matching marriage)
+    {
+        int[][] ret = new int[marriage.getEmployeeCount()][marriage.getLocationCount()];
+
+        for(int i=0; i<marriage.getEmployeeCount(); i++)
+        {
+            for(int j=0; j<marriage.getLocationCount(); j++)
+            {
+                ret[i][marriage.getEmployeePreference().get(i).get(j)] = j;
+            }
+        }
+        return ret;
+    }
+
     @Override
     public boolean isStableMatching(Matching marriage) {
         // Check if there is matching first
@@ -40,7 +67,6 @@ public class Program1 extends AbstractProgram1 {
             }
             if(num > 0)
             {
-                System.out.println("a");
                 return false;
             }
         }
@@ -69,7 +95,6 @@ public class Program1 extends AbstractProgram1 {
                 {
                     if(not_matched.indexOf(marriage.getLocationPreference().get(i).get(k)) != -1)    // Means one of the employees which wasn't matched at all was preferable to the current employee
                     {
-                        System.out.println("b");
                         return false;
                     }
                 }
@@ -145,7 +170,7 @@ public class Program1 extends AbstractProgram1 {
         boolean flag = ((marriage.getEmployeeCount() > 0) & (marriage.getLocationCount() > 0));
         while(flag)
         {
-            int employee = 0;  // Employee who proposes to their favorite store
+            int employee = -1;  // Employee who proposes to their favorite store
             for(int i=0; i<marriage.getEmployeeCount(); i++)
             {
                 if((!employee_matched[i]) & (employee_last_asked[i] != marriage.getEmployeePreference().get(i).get(marriage.getEmployeePreference().get(i).size()-1)))  // continue loop
@@ -165,7 +190,6 @@ public class Program1 extends AbstractProgram1 {
                 ask_store = marriage.getEmployeePreference().get(employee).get(temp+1);
             }
             employee_last_asked[employee] = ask_store;
-
 
             // if store has an empty spot
             boolean empty_spot = false;
@@ -381,4 +405,87 @@ public class Program1 extends AbstractProgram1 {
 
 
     }
+
+//    @Override
+//    public boolean is_employee_optimal(Matching marriage) {
+//
+//        // Approach: 1. Create all possible matchings
+//        //           2. If matching is stable, check if any of the employees are matched to better stores, return false if found
+//
+//        ArrayList<Matching> all_matchings = new ArrayList<>();
+//
+//        int total_slots = 0;
+//        for(int i=0; i<marriage.getLocationCount(); i++)
+//        {
+//            total_slots += marriage.getLocationSlots().get(i);
+//        }
+//
+////        int perm = 1;
+////
+////
+////        for(int i= 1; i<marriage.getEmployeeCount() + 1; i++)
+////        {
+////            perm *= i;
+////            System.out.println(perm);
+////        }
+//
+//
+//        for(int i=0; i < 10000000; i++)
+//        {
+//            Integer[] employee_matching = new Integer[marriage.getEmployeeCount()];
+//
+//            for(int j=0; j<marriage.getEmployeeCount(); j++)
+//            {
+//                employee_matching[j] = j;
+//            }
+//
+//            List<Integer> temp = Arrays.asList(employee_matching);
+//
+//            Collections.shuffle(temp);
+//
+//            temp.toArray(employee_matching);
+//
+//            // Map index to location / -1
+//
+//            ArrayList<Integer> actual_matching = new ArrayList<>();
+//
+//            for(int j=0; j<marriage.getEmployeeCount(); j++)
+//            {
+//                int val = employee_matching[j];
+//                boolean flag = true;
+//                for(int k=0; k<marriage.getLocationCount(); k++)
+//                {
+//                    val -= marriage.getLocationSlots().get(k);
+//                    if(val < 0)
+//                    {
+//                        actual_matching.add(k);
+//                        flag = false;
+//                        break;
+//                    }
+//                }
+//                if(flag)
+//                {
+//                    actual_matching.add(-1);
+//                }
+//            }
+//
+//            Matching to_test = new Matching(marriage.getLocationCount(), marriage.getEmployeeCount(), marriage.getLocationPreference(), marriage.getEmployeePreference(), marriage.getLocationSlots(), actual_matching);
+//
+//
+//            // Run isStable()
+//
+//            boolean is_stable = isStableMatching(to_test);
+//
+//            // if true, check if optimal
+//
+//            if(is_stable) {
+//                System.out.println("ez");
+//            }
+//        }
+//
+//
+//
+//
+//        return true;
+//    }
 }

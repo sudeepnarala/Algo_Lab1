@@ -117,6 +117,10 @@ public class Driver {
             isStable = program.isStableMatching(GSMatching);
             System.out.printf("%s: stable? %s\n", "Gale-Shapley Employee Optimal", isStable);
             System.out.println();
+            System.out.println();
+            System.out.println();
+//            program.is_employee_optimal(GSMatching);
+
         }
 
     }
