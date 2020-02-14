@@ -24,28 +24,22 @@ public class Program1 extends AbstractProgram1 {
      * Study the description of a Matching in the project documentation to help you with this.
      */
 
-    public int[][] locationPrefArray(Matching marriage)
-    {
+    public int[][] locationPrefArray(Matching marriage) {
         int[][] ret = new int[marriage.getLocationCount()][marriage.getEmployeeCount()];
 
-        for(int i=0; i<marriage.getLocationCount(); i++)
-        {
-            for(int j=0; j<marriage.getEmployeeCount(); j++)
-            {
+        for (int i = 0; i < marriage.getLocationCount(); i++) {
+            for (int j = 0; j < marriage.getEmployeeCount(); j++) {
                 ret[i][marriage.getLocationPreference().get(i).get(j)] = j;
             }
         }
         return ret;
     }
 
-    public int[][] employeePrefArray(Matching marriage)
-    {
+    public int[][] employeePrefArray(Matching marriage) {
         int[][] ret = new int[marriage.getEmployeeCount()][marriage.getLocationCount()];
 
-        for(int i=0; i<marriage.getEmployeeCount(); i++)
-        {
-            for(int j=0; j<marriage.getLocationCount(); j++)
-            {
+        for (int i = 0; i < marriage.getEmployeeCount(); i++) {
+            for (int j = 0; j < marriage.getLocationCount(); j++) {
                 ret[i][marriage.getEmployeePreference().get(i).get(j)] = j;
             }
         }
@@ -54,46 +48,41 @@ public class Program1 extends AbstractProgram1 {
 
     @Override
     public boolean isStableMatching(Matching marriage) {
+        int[][] location_pref_arr = locationPrefArray(marriage);
+        int[][] employee_pref_arr = employeePrefArray(marriage);
+
+
         // Check if there is matching first
-        for(int i=0; i<marriage.getLocationSlots().size(); i++)
-        {
+        for (int i = 0; i < marriage.getLocationSlots().size(); i++) {
             int num = marriage.getLocationSlots().get(i);
-            for(int j=0; j<marriage.getEmployeeMatching().size(); j++)
-            {
-                if(marriage.getEmployeeMatching().get(j) == i)
-                {
+            for (int j = 0; j < marriage.getEmployeeMatching().size(); j++) {
+                if (marriage.getEmployeeMatching().get(j) == i) {
                     num--;
                 }
             }
-            if(num > 0)
-            {
+            if (num > 0) {
                 return false;
             }
         }
 
         // First type of instability
         ArrayList<Integer> not_matched = new ArrayList<>();
-        for(int i=0; i< marriage.getEmployeeCount(); i++)
-        {
-            if(marriage.getEmployeeMatching().get(i) == -1)
-            {
+        for (int i = 0; i < marriage.getEmployeeCount(); i++) {
+            if (marriage.getEmployeeMatching().get(i) == -1) {
                 not_matched.add(i);
             }
         }
-        for(int i=0; i < marriage.getLocationCount(); i++) {
+        for (int i = 0; i < marriage.getLocationCount(); i++) {
             ArrayList<Integer> matched_employee_indices = new ArrayList<>();    // For this location
-            for(int j=0; j < marriage.getEmployeeCount(); j++) {
-                if(marriage.getEmployeeMatching().get(j) == i)
-                {
+            for (int j = 0; j < marriage.getEmployeeCount(); j++) {
+                if (marriage.getEmployeeMatching().get(j) == i) {
                     matched_employee_indices.add(j);
                 }
             }
-            for(int j=0; j<matched_employee_indices.size(); j++)
-            {
-                int employee_pref = marriage.getLocationPreference().get(i).indexOf(matched_employee_indices.get(j));
-                for(int k=0; k<employee_pref; k++)
-                {
-                    if(not_matched.indexOf(marriage.getLocationPreference().get(i).get(k)) != -1)    // Means one of the employees which wasn't matched at all was preferable to the current employee
+            for (int j = 0; j < matched_employee_indices.size(); j++) {
+                int employee_pref = location_pref_arr[i][matched_employee_indices.get(j)];
+                for (int k = 0; k < employee_pref; k++) {
+                    if (not_matched.indexOf(marriage.getLocationPreference().get(i).get(k)) != -1)    // Means one of the employees which wasn't matched at all was preferable to the current employee
                     {
                         return false;
                     }
@@ -103,32 +92,28 @@ public class Program1 extends AbstractProgram1 {
 
         // Second type of instability
 
-        for(int i=0; i < marriage.getLocationCount(); i++) {
+        for (int i = 0; i < marriage.getLocationCount(); i++) {
             ArrayList<Integer> matched_employee_indices = new ArrayList<>();    // For this location
-            for(int j=0; j < marriage.getEmployeeCount(); j++) {
-                if(marriage.getEmployeeMatching().get(j) == i)
-                {
+            for (int j = 0; j < marriage.getEmployeeCount(); j++) {
+                if (marriage.getEmployeeMatching().get(j) == i) {
                     matched_employee_indices.add(j);
                 }
             }
-            for(int j=0; j<matched_employee_indices.size(); j++) {
+            for (int j = 0; j < matched_employee_indices.size(); j++) {
                 int employee = matched_employee_indices.get(j);
                 // Check all stores that employee at j prefers to the current store
-                for(int k=0; k < marriage.getEmployeePreference().get(employee).indexOf(i); k++)    // i is the store employee was matched to
+                for (int k = 0; k < employee_pref_arr[employee][i]; k++)    // i is the store employee was matched to
                 {
                     int kth_store = marriage.getEmployeePreference().get(employee).get(k);
                     // Go through all the employees store k has and check if it prefers employee over anyone
                     ArrayList<Integer> store_k_matching = new ArrayList<>();
-                    for(int m=0; m<marriage.getEmployeeMatching().size(); m++)
-                    {
-                        if(marriage.getEmployeeMatching().get(m) == kth_store)
-                        {
+                    for (int m = 0; m < marriage.getEmployeeMatching().size(); m++) {
+                        if (marriage.getEmployeeMatching().get(m) == kth_store) {
                             store_k_matching.add(m);
                         }
                     }
-                    for(int m=0; m < store_k_matching.size(); m++)
-                    {
-                        if(marriage.getLocationPreference().get(kth_store).indexOf(store_k_matching.get(m)) > marriage.getLocationPreference().get(kth_store).indexOf(employee)) // if current matched employee is later in pref list than employee idx
+                    for (int m = 0; m < store_k_matching.size(); m++) {
+                        if (location_pref_arr[kth_store][store_k_matching.get(m)] > location_pref_arr[kth_store][employee]) // if current matched employee is later in pref list than employee idx
                         {
                             return false;
                         }
@@ -148,7 +133,6 @@ public class Program1 extends AbstractProgram1 {
      *
      * @return A stable Matching.
      */
-    @Override
     public Matching stableMarriageGaleShapley_employeeoptimal(Matching marriage) {
 
         int[] employee_last_asked = new int[marriage.getEmployeeCount()];
@@ -275,6 +259,7 @@ public class Program1 extends AbstractProgram1 {
 
     }
 
+
     /**
      * Determines a location optimal solution to the Stable Marriage problem from the given input set.
      * Study the description to understand the variables which represent the input to your solution.
@@ -284,6 +269,29 @@ public class Program1 extends AbstractProgram1 {
     @Override
     public Matching stableMarriageGaleShapley_locationoptimal(Matching marriage) {
 
+        int[] location_spots_left = new int[marriage.getLocationCount()];
+
+        for(int i=0; i<marriage.getLocationCount(); i++)
+        {
+            location_spots_left[i] = marriage.getLocationSlots().get(i);
+        }
+
+        int[] employee_curr_store = new int[marriage.getEmployeeCount()];
+
+        Arrays.fill(employee_curr_store, -1);
+
+        int total_matches = 0;
+
+        int total_required_matches = 0;
+
+        for(int i=0; i<marriage.getLocationCount(); i++)
+        {
+            total_required_matches+=marriage.getLocationSlots().get(i);
+        }
+
+        int[][] location_pref_arr = locationPrefArray(marriage);
+        int[][] employee_pref_arr = employeePrefArray(marriage);
+
         int[] store_last_asked = new int[marriage.getEmployeeCount()];
         Arrays.fill(store_last_asked, -1);
         boolean[] employee_matched = new boolean[marriage.getEmployeeCount()];
@@ -291,201 +299,57 @@ public class Program1 extends AbstractProgram1 {
 
         boolean flag = ((marriage.getEmployeeCount() > 0) & (marriage.getLocationCount() > 0));
 
-        ArrayList<ArrayList<Integer>> store_matching = new ArrayList<>();
-        for(int i=0; i<marriage.getLocationCount(); i++)
-        {
-            store_matching.add(new ArrayList<Integer>());
-            for(int j=0; j<marriage.getLocationSlots().get(i); j++)
-            {
-                store_matching.get(i).add(-1);
-            }
-        }
+        int store_num = 0;
 
 
 
-
-        while(flag)
-        {
-            int store_num = -1;
-            int empty_idx = -1;
-            for(int i=0; i<store_matching.size(); i++)
-            {
-                for(int j=0; j<store_matching.get(i).size(); j++)
-                {
-                    if(store_matching.get(i).get(j) == -1)
-                    {
-                        store_num = i;
-                        empty_idx = j;
-                        break;
-                    }
+        while (flag) {
+            if(location_spots_left[store_num] > 0) {
+                int employee = -1;
+                if (store_last_asked[store_num] == -1) {
+                    employee = marriage.getLocationPreference().get(store_num).get(0);
+                } else {
+                    int temp = location_pref_arr[store_num][store_last_asked[store_num]];
+                    employee = marriage.getLocationPreference().get(store_num).get(temp + 1);
                 }
-            }
 
-            int employee = -1;
-            if(store_last_asked[store_num] == -1)
-            {
-                employee = marriage.getLocationPreference().get(store_num).get(0);
-            }
-            else
-            {
-                int temp = marriage.getLocationPreference().get(store_num).indexOf(store_last_asked[store_num]);
-                employee = marriage.getLocationPreference().get(store_num).get(temp+1);
-            }
+                store_last_asked[store_num] = employee;
 
-            store_last_asked[store_num] = employee;
-
-            if(!employee_matched[employee])
-            {
-                store_matching.get(store_num).set(empty_idx, employee);
-                employee_matched[employee] = true;
-            }
-            else
-            {
-                int store_employee_is_with = -1;
-                for(int i=0; i<store_matching.size(); i++)
-                {
-                    for(int j=0; j<store_matching.get(i).size(); j++)
-                    {
-                        if(store_matching.get(i).get(j) == employee)
-                        {
-                            store_employee_is_with = i;
-                            break;
-                        }
-                    }
-                }
-                int current_pref = marriage.getEmployeePreference().get(employee).indexOf(store_employee_is_with);
-                int possible_pref =  marriage.getEmployeePreference().get(employee).indexOf(store_num);
-
-                if(current_pref > possible_pref)    // Prefers new store
-                {
-                    store_matching.get(store_employee_is_with).set(store_matching.get(store_employee_is_with).indexOf(employee), -1);
-                    store_matching.get(store_num).set(empty_idx, employee);
+                if (!employee_matched[employee]) {
                     employee_matched[employee] = true;
-                }
+                    employee_curr_store[employee] = store_num;
+                    total_matches++;
+                    location_spots_left[store_num]--;
+                } else {
+                    int store_employee_is_with = employee_curr_store[employee];
+                    int current_pref = employee_pref_arr[employee][store_employee_is_with];
+                    int possible_pref = employee_pref_arr[employee][store_num];
 
-            }
-
-
-
-            flag = false;
-            //while condition update
-            for(int i=0; i<store_matching.size(); i++)
-            {
-                for(int j=0; j<store_matching.get(i).size(); j++)
-                {
-                    if(store_matching.get(i).get(j) == -1)
+                    if (current_pref > possible_pref)    // Prefers new store
                     {
-                        flag = true;
-                        break;
+                        location_spots_left[store_employee_is_with]++;
+                        location_spots_left[store_num]--;
+                        employee_curr_store[employee] = store_num;
                     }
                 }
             }
-        }
-        int[] ret_arr = new int[marriage.getEmployeeCount()];
-        Arrays.fill(ret_arr, -1);
 
-        for(int i=0; i<store_matching.size(); i++)
-        {
-            for(int j=0; j<store_matching.get(i).size(); j++)
+            flag = true;
+            //while condition update
+            if(total_matches == total_required_matches)
             {
-                if(store_matching.get(i).get(j) != -1)
-                {
-                    ret_arr[store_matching.get(i).get(j)] = i;
-                }
+                flag = false;
             }
+            store_num = (store_num + 1) % marriage.getLocationCount();
         }
 
         ArrayList<Integer> ret = new ArrayList<>();
-        for(int i=0; i<marriage.getEmployeeCount(); i++)
-        {
-            ret.add(ret_arr[i]);
+        for (int i = 0; i < marriage.getEmployeeCount(); i++) {
+            ret.add(employee_curr_store[i]);
         }
 
         return new Matching(marriage.getLocationCount(), marriage.getEmployeeCount(), marriage.getLocationPreference(), marriage.getEmployeePreference(), marriage.getLocationSlots(), ret);
 
 
     }
-
-//    @Override
-//    public boolean is_employee_optimal(Matching marriage) {
-//
-//        // Approach: 1. Create all possible matchings
-//        //           2. If matching is stable, check if any of the employees are matched to better stores, return false if found
-//
-//        ArrayList<Matching> all_matchings = new ArrayList<>();
-//
-//        int total_slots = 0;
-//        for(int i=0; i<marriage.getLocationCount(); i++)
-//        {
-//            total_slots += marriage.getLocationSlots().get(i);
-//        }
-//
-////        int perm = 1;
-////
-////
-////        for(int i= 1; i<marriage.getEmployeeCount() + 1; i++)
-////        {
-////            perm *= i;
-////            System.out.println(perm);
-////        }
-//
-//
-//        for(int i=0; i < 10000000; i++)
-//        {
-//            Integer[] employee_matching = new Integer[marriage.getEmployeeCount()];
-//
-//            for(int j=0; j<marriage.getEmployeeCount(); j++)
-//            {
-//                employee_matching[j] = j;
-//            }
-//
-//            List<Integer> temp = Arrays.asList(employee_matching);
-//
-//            Collections.shuffle(temp);
-//
-//            temp.toArray(employee_matching);
-//
-//            // Map index to location / -1
-//
-//            ArrayList<Integer> actual_matching = new ArrayList<>();
-//
-//            for(int j=0; j<marriage.getEmployeeCount(); j++)
-//            {
-//                int val = employee_matching[j];
-//                boolean flag = true;
-//                for(int k=0; k<marriage.getLocationCount(); k++)
-//                {
-//                    val -= marriage.getLocationSlots().get(k);
-//                    if(val < 0)
-//                    {
-//                        actual_matching.add(k);
-//                        flag = false;
-//                        break;
-//                    }
-//                }
-//                if(flag)
-//                {
-//                    actual_matching.add(-1);
-//                }
-//            }
-//
-//            Matching to_test = new Matching(marriage.getLocationCount(), marriage.getEmployeeCount(), marriage.getLocationPreference(), marriage.getEmployeePreference(), marriage.getLocationSlots(), actual_matching);
-//
-//
-//            // Run isStable()
-//
-//            boolean is_stable = isStableMatching(to_test);
-//
-//            // if true, check if optimal
-//
-//            if(is_stable) {
-//                System.out.println("ez");
-//            }
-//        }
-//
-//
-//
-//
-//        return true;
-//    }
 }
